@@ -1,5 +1,7 @@
 # obsidian-anki-cards
 
+> **版本**：`v2.0.0`（适配 flashcards-obsidian v2.0.1+）
+
 把学习域里的单元学习笔记提炼成 [flashcards-obsidian](https://github.com/reuseman/flashcards-obsidian) 插件格式的 Anki 卡片，写入该域自己的中间文件，在 Obsidian 里手动同步进 Anki。
 
 这是给支持 [Agent Skills](https://agentskills.io) 规范的 AI 编码工具（**Claude Code、OpenCode、Codex、Cursor** 等 76+ 种）用的 skill。

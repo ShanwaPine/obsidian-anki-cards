@@ -2,6 +2,9 @@
 name: obsidian-anki-cards
 description: 把学习域里的单元学习笔记提炼成 flashcards-obsidian 插件格式的 Anki 卡片，追加写入该域自己的中间文件（如《XX学习域-Anki卡片.md》），供用户在 Obsidian 里手动同步进 Anki。当用户提到"做闪卡""生成Anki卡片""做卡片""同步到Anki""帮我把这个单元/这几个单元/还没做过的单元做成卡片""flashcards-obsidian"，或者刚学完/复盘完某个学习域的一个单元、想把内容变成可以刷的记忆卡片时，主动使用本 skill，不用等用户指明是哪个域或把插件语法说清楚。用户要求修改、修复、更新、完善中间文件里任何已有卡片时也必须先进入本 skill——哪怕只改一张卡的措辞，不了解插件语法直接编辑会把卡片改碎。不要用于：把笔记逐字照抄成卡片、生成无需记忆的普通笔记、或用户只想整体整理笔记而不走 Anki 的场景（正常聊天即可，无需本 skill）。
 license: MIT
+version: 2.0.0
+metadata:
+  version: 2.0.0
 ---
 
 # 学习域 Anki 闪卡生成
