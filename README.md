@@ -10,7 +10,7 @@
 
 学习笔记最大的坑是"读的时候都懂，三个月后全忘"。Anki 的间隔重复能解决遗忘，但有一个更高的门槛——**把一段笔记提炼成一张好卡片**。这个 skill 把三件事固化成一套可复用的流程：
 
-1. **插件语法**：flashcards-obsidian 的语法（`#card`、行内 `::`、cloze 挖空、context-aware 路径、`^id` 追踪机制）细节多、一个空行就碎卡。skill 内置完整语法参考和四条铁律，不用每次重新查。
+1. **插件语法**：flashcards-obsidian 的语法（`#card`、fenced 块 ` ```flashcard `、行内 `::`、cloze 挖空、context-aware 路径、`^id` 追踪机制）细节多、AST 节点与空行规则严。skill 内置完整语法参考和四条铁律，不用每次重新查。
 2. **提炼判断标准**："这段话删掉后，三个月后的我还能想起这一课吗？"——能想起来的才值得做卡，避免把笔记逐字抄成卡片。
 3. **问法设计铁律**：好问法带"场景钩子"（用具体处境起头），禁指代、禁题面泄答案、禁逆向提问、禁开放式问法。这四条决定了卡片复习时能不能真正考住你。
 
@@ -73,7 +73,7 @@ npx skills remove obsidian-anki-cards -g   # 卸载（全局）
 2. **确认单元**：读取中间文件已有列表，跳过已做过的单元
 3. **提炼知识点**：按判断标准挑值得做成卡片的内容，通常一个单元 4~8 张
 4. **写问法**：按四条禁忌写，每张卡回看一遍
-5. **选格式**：`#card`（多行答案）/ `::`（一句话）/ `#card-reverse`（双向）/ cloze（原句挖空）
+5. **选格式**：fenced 块（多行/复杂列表） / `#card`（紧邻列表或单段） / `::`（一句话） / `#card-reverse`（双向） / cloze（原句挖空）
 6. **写入中间文件**：追加到该域的 `XX学习域-Anki卡片.md`，绝不覆盖
 7. **全文自检**：通读整份文件，按四条铁律 + 四条禁忌逐张过
 8. **用户手动同步**：在 Obsidian 里跑 `Ctrl+P → Flashcards: generate for the current file`
@@ -98,11 +98,11 @@ obsidian-anki-cards/
 | 位置 | 示范什么 |
 |------|---------|
 | frontmatter + 加粗域名 + 修改前必读 | 新建中间文件的标准头部（**注意域名没有用 `# ` 一级标题**，否则会污染每张卡的正面） |
-| 单元3 第 1 张（`#card`） | 多行答案的排版：分点列表 + 关键词加粗 + 末尾一句点睛，**全块无空行** |
+| 单元3 第 1 张（`#card`） | 行尾 `#card` + 紧邻纯列表：分点列表 + 关键词加粗 + 末尾一句点睛，**全块无空行** |
 | 单元3 第 2 张（行内 `::`） | 一句话问完答完的简单事实，最省地方 |
 | 单元3 第 3 张（`#card-reverse`） | 答案首句就是单一术语定义，才配得上反转卡 |
-| 单元3 第 4 张（cloze） | 想记准确措辞的金句，用 `==挖空==`，**整行不带 `::`** |
-| 单元4 两张卡 | 多单元区块如何追加；两张卡分别给出严格判据与其补充标准，场景区分开、互不干扰 |
+| 单元3 第 4 张（cloze） | 想记准确措辞的金句，单空用 `==挖空==`，**整行不带 `::`**（多空用 `{1:词}` 绑定） |
+| 单元4 两张卡（fenced 块） | v2 推荐的 ` ```flashcard ` 代码块写法：多单元区块追加，复杂多行列表结构清晰、互不干扰 |
 | 全文没有任何 `^id` 行 | ID 只能由插件同步后自动写入，人工绝不手动补 |
 
 所有问题都遵守"场景钩子"原则：先给具体处境，再问答案，题面里不出现答案关键词。
@@ -113,14 +113,14 @@ obsidian-anki-cards/
 
 skill 里的规则大多来自真实使用中踩过的坑，值得说明为什么这么严格：
 
-- **`#card` 答案内不能有空行**：答案到第一个空行就截止，空行后的内容会被甩出卡片、变成孤儿文本，下次同步长出新 ID，一张卡裂成两半。
+- **`#card` 答案在 v2 下的节点规则**：v2 会严格按 AST 顶层节点收集答案。行尾 `#card` 紧邻纯列表是合法的；但 marker 后面同段写了引言文字再接列表，列表会被甩出卡片；复杂多行推荐使用 fenced 代码块（` ```flashcard `）。
 - **卡片问题不用 markdown 标题写法**：`### 问题 #card` 会变成文档里真实的标题，插件的 context-aware 逻辑会把紧跟其后的所有卡片都拼到这张"标题卡"下面，正面越叠越长。
-- **`^id` 不删不生成**：ID 只能由插件在真实同步后写入，人工删了会重复建卡、人工编了会去更新一张不存在的笔记。
-- **cloze 不能跟 `::` 混用**：两套卡片机制写在同一行会生成两张互相打架的卡。
+- **`^id` 不删不生成**：ID 只能由插件在真实同步后写入（v2 为 `^q-xxxx`），人工删了会重复建卡、人工编了会去更新一张不存在的笔记。
+- **cloze 规则严谨化**：挖空绝不能跟行内 `::` 写在同一行（两套机制冲突）；在 v2 下单空用 `==词==`，一句话挖多个词必须用 `{1:词}` 复用编号绑成一张卡，避免 Anki 不自动补卡导致明文泄露。
 
 ## English
 
-An [Agent Skill](https://agentskills.io) that turns study notes into [flashcards-obsidian](https://github.com/reuseman/flashcards-obsidian) cards for Anki. It encodes three things that are easy to get wrong: the plugin's exact syntax (a stray blank line silently splits a card in two), a filter for what actually deserves a card, and four hard rules for writing prompts that still work six months later.
+An [Agent Skill](https://agentskills.io) that turns study notes into [flashcards-obsidian](https://github.com/reuseman/flashcards-obsidian) cards for Anki. It encodes three things that are easy to get wrong: the plugin's exact v2 syntax (AST node rules, fenced blocks, multi-cloze binding), a filter for what actually deserves a card, and four hard rules for writing prompts that still work six months later.
 
 The skill only writes the card file — you run `Ctrl+P → Flashcards: generate for the current file` in Obsidian yourself.
 
